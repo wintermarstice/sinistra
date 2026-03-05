@@ -1,6 +1,8 @@
 mod hash_map;
+mod vec;
 
 pub use hash_map::HashMapStorage;
+pub use vec::VecStorage;
 
 use crate::graph::{EdgeHandle, VertexHandle};
 
