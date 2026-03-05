@@ -1,6 +1,7 @@
 mod bfs;
 mod dfs;
 mod dijkstra;
+mod toposort;
 
 pub use bfs::Event as BfsEvent;
 pub use bfs::{bfs, bfs_tree_edges, bfs_vertices};
@@ -12,6 +13,8 @@ pub use dijkstra::Dijkstra;
 pub use dijkstra::Event as DijkstraEvent;
 pub use dijkstra::dijkstra;
 pub use dijkstra::dijkstra_distances;
+
+pub use toposort::{bfs_layers, has_path, is_dag, topological_sort};
 
 use std::collections::{BinaryHeap, VecDeque};
 
