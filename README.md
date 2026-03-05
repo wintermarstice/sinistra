@@ -11,9 +11,10 @@ A lightweight, generic graph library in Rust.
 - `HashMapStorage` + `HashMapTopology` out of the box.
 - Directed and undirected graph topologies (`Undirected<T>` wrapper).
 - Traversal and shortest-path algorithms:
-  - `bfs`, `bfs_vertices`, `bfs_tree_edges`
+  - `bfs`, `bfs_vertices`, `bfs_tree_edges`, `bfs_layers`, `has_path`
   - `dfs`
   - `dijkstra`, `dijkstra_distances`
+  - `topological_sort`, `is_dag`
 
 ## Getting started
 
@@ -55,6 +56,15 @@ cargo run --example dijkstra_distances
 ```bash
 cargo fmt
 cargo test
+```
+
+## Coverage
+
+Generate an LCOV report locally:
+
+```bash
+cargo install cargo-llvm-cov
+cargo llvm-cov --workspace --all-targets --lcov --output-path lcov.info
 ```
 
 ## License
