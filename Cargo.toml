@@ -2,5 +2,10 @@
 name = "sinistra"
 version = "0.1.0"
 edition = "2024"
+authors = ["Buğra Kadirhan <bugrakadirhan@proton.me>"]
+description = "A library for working with graph structured data"
+repository = "https://github.com/wintermarstice/sinistra"
+license = "MIT"
+documentation = "https://docs.rs/sinistra"
 
 [dependencies]
