@@ -1,8 +1,10 @@
 mod hash_map;
 mod undirected;
+mod vec;
 
 pub use hash_map::HashMapTopology;
 pub use undirected::Undirected;
+pub use vec::VecTopology;
 
 use crate::graph::{EdgeHandle, VertexHandle};
 

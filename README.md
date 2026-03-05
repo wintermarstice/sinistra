@@ -9,6 +9,7 @@ A lightweight, generic graph library in Rust.
 - Generic `Graph` and `GraphMut` traits.
 - `BasicGraph` implementation with pluggable storage/topology.
 - `HashMapStorage` + `HashMapTopology` out of the box.
+- `VecStorage` + `VecTopology` for dense/indexed graph layouts.
 - Directed and undirected graph topologies (`Undirected<T>` wrapper).
 - Traversal and shortest-path algorithms:
   - `bfs`, `bfs_vertices`, `bfs_tree_edges`, `bfs_layers`, `has_path`
