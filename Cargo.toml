@@ -1,6 +1,6 @@
 [package]
 name = "sinistra"
-version = "0.1.0"
+version = "0.1.0-202603052157"
 edition = "2024"
 authors = ["Buğra Kadirhan <bugrakadirhan@proton.me>"]
 description = "A library for working with graph structured data"
