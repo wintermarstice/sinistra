@@ -3,7 +3,7 @@ use std::{
     sync::atomic::{AtomicU32, Ordering},
 };
 
-use crate::graph::{EdgeHandle, Storage, VertexHandle};
+use crate::graph::{Checked, EdgeHandle, Storage, VertexHandle};
 
 static DISCRIMINANT_COUNTER: AtomicU32 = AtomicU32::new(0);
 
@@ -22,6 +22,14 @@ impl<V, E> HashMapStorage<V, E> {
             vertices: HashMap::new(),
         }
     }
+
+    fn checked_vertex(&self, handle: VertexHandle) -> Option<Checked<VertexHandle>> {
+        Checked::graph_and_generation(handle, self.discriminant)
+    }
+
+    fn checked_edge(&self, handle: EdgeHandle) -> Option<Checked<EdgeHandle>> {
+        Checked::graph_and_generation(handle, self.discriminant)
+    }
 }
 
 impl<V, E> Storage for HashMapStorage<V, E> {
@@ -29,53 +37,33 @@ impl<V, E> Storage for HashMapStorage<V, E> {
     type Edge = E;
 
     fn vertex(&self, handle: VertexHandle) -> Option<&V> {
-        if handle.graph() != self.discriminant {
-            return None;
-        }
-
-        self.vertices.get(&handle)
+        let checked = self.checked_vertex(handle)?;
+        self.vertices.get(&checked.into_inner())
     }
 
     fn edge(&self, handle: EdgeHandle) -> Option<&E> {
-        if handle.graph() != self.discriminant {
-            return None;
-        }
-
-        self.edges.get(&handle)
+        let checked = self.checked_edge(handle)?;
+        self.edges.get(&checked.into_inner())
     }
 
     fn vertex_mut(&mut self, handle: VertexHandle) -> Option<&mut V> {
-        if handle.graph() != self.discriminant {
-            return None;
-        }
-
-        self.vertices.get_mut(&handle)
+        let checked = self.checked_vertex(handle)?;
+        self.vertices.get_mut(&checked.into_inner())
     }
 
     fn edge_mut(&mut self, handle: EdgeHandle) -> Option<&mut E> {
-        if handle.graph() != self.discriminant {
-            return None;
-        }
-
-        self.edges.get_mut(&handle)
+        let checked = self.checked_edge(handle)?;
+        self.edges.get_mut(&checked.into_inner())
     }
 
     fn set_vertex(&mut self, handle: VertexHandle, vertex: V) -> Option<V> {
-        assert_eq!(
-            handle.graph(),
-            self.discriminant,
-            "vertex handle graph mismatch"
-        );
-        self.vertices.insert(handle, vertex)
+        let checked = self.checked_vertex(handle)?;
+        self.vertices.insert(checked.into_inner(), vertex)
     }
 
     fn set_edge(&mut self, handle: EdgeHandle, edge: E) -> Option<E> {
-        assert_eq!(
-            handle.graph(),
-            self.discriminant,
-            "edge handle graph mismatch"
-        );
-        self.edges.insert(handle, edge)
+        let checked = self.checked_edge(handle)?;
+        self.edges.insert(checked.into_inner(), edge)
     }
 
     fn add_vertex(&mut self, vertex: V) -> VertexHandle {
@@ -91,20 +79,12 @@ impl<V, E> Storage for HashMapStorage<V, E> {
     }
 
     fn remove_vertex(&mut self, handle: VertexHandle) -> Option<V> {
-        assert_eq!(
-            handle.graph(),
-            self.discriminant,
-            "vertex handle graph mismatch"
-        );
-        self.vertices.remove(&handle)
+        let checked = self.checked_vertex(handle)?;
+        self.vertices.remove(&checked.into_inner())
     }
 
     fn remove_edge(&mut self, handle: EdgeHandle) -> Option<E> {
-        assert_eq!(
-            handle.graph(),
-            self.discriminant,
-            "edge handle graph mismatch"
-        );
-        self.edges.remove(&handle)
+        let checked = self.checked_edge(handle)?;
+        self.edges.remove(&checked.into_inner())
     }
 }

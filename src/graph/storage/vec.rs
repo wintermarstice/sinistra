@@ -1,6 +1,6 @@
 use std::sync::atomic::{AtomicU32, Ordering};
 
-use crate::graph::{EdgeHandle, Storage, VertexHandle};
+use crate::graph::{Checked, EdgeHandle, Storage, VertexHandle};
 
 static DISCRIMINANT_COUNTER: AtomicU32 = AtomicU32::new(10_000);
 
@@ -20,30 +20,22 @@ impl<V, E> VecStorage<V, E> {
         }
     }
 
-    fn valid_vertex_handle(&self, handle: VertexHandle) -> Option<usize> {
-        if handle.graph() != self.discriminant {
+    fn checked_vertex(&self, handle: VertexHandle) -> Option<Checked<VertexHandle>> {
+        let checked = Checked::graph_and_generation(handle, self.discriminant)?;
+        if checked.index() >= self.vertices.len() {
             return None;
         }
 
-        let index = handle.index();
-        if index >= self.vertices.len() {
-            return None;
-        }
-
-        Some(index)
+        Some(checked)
     }
 
-    fn valid_edge_handle(&self, handle: EdgeHandle) -> Option<usize> {
-        if handle.graph() != self.discriminant {
+    fn checked_edge(&self, handle: EdgeHandle) -> Option<Checked<EdgeHandle>> {
+        let checked = Checked::graph_and_generation(handle, self.discriminant)?;
+        if checked.index() >= self.edges.len() {
             return None;
         }
 
-        let index = handle.index();
-        if index >= self.edges.len() {
-            return None;
-        }
-
-        Some(index)
+        Some(checked)
     }
 }
 
@@ -52,23 +44,23 @@ impl<V, E> Storage for VecStorage<V, E> {
     type Edge = E;
 
     fn vertex(&self, handle: VertexHandle) -> Option<&Self::Vertex> {
-        let index = self.valid_vertex_handle(handle)?;
-        self.vertices.get(index)?.as_ref()
+        let checked = self.checked_vertex(handle)?;
+        self.vertices.get(checked.index())?.as_ref()
     }
 
     fn edge(&self, handle: EdgeHandle) -> Option<&Self::Edge> {
-        let index = self.valid_edge_handle(handle)?;
-        self.edges.get(index)?.as_ref()
+        let checked = self.checked_edge(handle)?;
+        self.edges.get(checked.index())?.as_ref()
     }
 
     fn vertex_mut(&mut self, handle: VertexHandle) -> Option<&mut Self::Vertex> {
-        let index = self.valid_vertex_handle(handle)?;
-        self.vertices.get_mut(index)?.as_mut()
+        let checked = self.checked_vertex(handle)?;
+        self.vertices.get_mut(checked.index())?.as_mut()
     }
 
     fn edge_mut(&mut self, handle: EdgeHandle) -> Option<&mut Self::Edge> {
-        let index = self.valid_edge_handle(handle)?;
-        self.edges.get_mut(index)?.as_mut()
+        let checked = self.checked_edge(handle)?;
+        self.edges.get_mut(checked.index())?.as_mut()
     }
 
     fn add_vertex(&mut self, vertex: Self::Vertex) -> VertexHandle {
@@ -84,62 +76,22 @@ impl<V, E> Storage for VecStorage<V, E> {
     }
 
     fn set_vertex(&mut self, handle: VertexHandle, vertex: Self::Vertex) -> Option<Self::Vertex> {
-        assert_eq!(
-            handle.graph(),
-            self.discriminant,
-            "vertex handle graph mismatch"
-        );
-
-        let index = handle.index();
-        if index >= self.vertices.len() {
-            return None;
-        }
-
-        self.vertices[index].replace(vertex)
+        let checked = self.checked_vertex(handle)?;
+        self.vertices[checked.index()].replace(vertex)
     }
 
     fn set_edge(&mut self, handle: EdgeHandle, edge: Self::Edge) -> Option<Self::Edge> {
-        assert_eq!(
-            handle.graph(),
-            self.discriminant,
-            "edge handle graph mismatch"
-        );
-
-        let index = handle.index();
-        if index >= self.edges.len() {
-            return None;
-        }
-
-        self.edges[index].replace(edge)
+        let checked = self.checked_edge(handle)?;
+        self.edges[checked.index()].replace(edge)
     }
 
     fn remove_vertex(&mut self, handle: VertexHandle) -> Option<Self::Vertex> {
-        assert_eq!(
-            handle.graph(),
-            self.discriminant,
-            "vertex handle graph mismatch"
-        );
-
-        let index = handle.index();
-        if index >= self.vertices.len() {
-            return None;
-        }
-
-        self.vertices[index].take()
+        let checked = self.checked_vertex(handle)?;
+        self.vertices[checked.index()].take()
     }
 
     fn remove_edge(&mut self, handle: EdgeHandle) -> Option<Self::Edge> {
-        assert_eq!(
-            handle.graph(),
-            self.discriminant,
-            "edge handle graph mismatch"
-        );
-
-        let index = handle.index();
-        if index >= self.edges.len() {
-            return None;
-        }
-
-        self.edges[index].take()
+        let checked = self.checked_edge(handle)?;
+        self.edges[checked.index()].take()
     }
 }
