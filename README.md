@@ -1,29 +1,57 @@
 # sinistra
 
-A lightweight, generic graph library in Rust.
+**Sinistra** is a lightweight, generic graph framework for Rust with pluggable storage and topology and streaming traversal algorithms.
 
-`sinistra` provides composable storage/topology abstractions and traversal algorithms such as BFS, DFS, and Dijkstra.
+It provides composable abstractions for representing graph structure and data separately, allowing algorithms such as **BFS**, **DFS**, **Dijkstra**, and **topological sort** to operate on many kinds of graph representations.
+
+---
+
+## Why sinistra?
+
+Most graph libraries tightly couple graph storage with connectivity.
+
+Sinistra separates **graph data** from **graph structure**: Graph = Storage (vertex/edge data) + Topology (connectivity)
+
+
+This design allows algorithms to run on different graph backends without modification.
+
+Possible uses include:
+
+- in-memory graphs
+- dense/indexed graphs
+- implicit graphs
+- database-backed graphs
+- custom graph views and adapters
+
+Algorithms operate on the `Graph` trait, making them reusable across different graph representations.
+
+---
 
 ## Features
 
-- Generic `Graph` and `GraphMut` traits.
-- `BasicGraph` implementation with pluggable storage/topology.
-- `HashMapStorage` + `HashMapTopology` out of the box.
-- `VecStorage` + `VecTopology` for dense/indexed graph layouts.
-- Directed and undirected graph topologies (`Undirected<T>` wrapper).
+- Generic `Graph` and `GraphMut` traits
+- `BasicGraph` implementation with pluggable storage and topology
+- Built-in storage and topology implementations:
+  - `HashMapStorage` + `HashMapTopology`
+  - `VecStorage` + `VecTopology`
+- Directed and undirected graph topologies (`Undirected<T>` wrapper)
 - Traversal and shortest-path algorithms:
   - `bfs`, `bfs_vertices`, `bfs_tree_edges`, `bfs_layers`, `has_path`
   - `dfs`
   - `dijkstra`, `dijkstra_distances`
   - `topological_sort`, `is_dag`
+- Streaming algorithms using iterators and events
+- Zero required allocations inside algorithms
+
+---
 
 ## Getting started
 
-Add to your `Cargo.toml`:
+Add `sinistra` to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-sinistra = "0.1.0"
+sinistra = "0.1.0-202603060014"
 ```
 
 Create a graph:
@@ -40,6 +68,8 @@ let b = graph.add_vertex("B");
 graph.add_edge((), a, b);
 ```
 
+---
+
 ## Examples
 
 Run all examples:
@@ -51,6 +81,8 @@ cargo run --example dijkstra_cities
 cargo run --example dfs_events
 cargo run --example dijkstra_distances
 ```
+
+---
 
 ## Development
 
