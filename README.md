@@ -21,7 +21,7 @@ Add to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-sinistra = { path = "." }
+sinistra = "0.1.0"
 ```
 
 Create a graph:
