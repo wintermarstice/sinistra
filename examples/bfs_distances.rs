@@ -1,7 +1,8 @@
 use std::collections::{HashMap, HashSet};
 
 use sinistra::graph::{
-    BasicGraph, Graph, GraphMut, HashMapStorage, HashMapTopology, VertexHandle, bfs_tree_edges,
+    BasicGraph, Graph, GraphEdgesExt, GraphEdgesMutExt, GraphEndpointsExt, GraphVertexSetMutExt,
+    HashMapStorage, HashMapTopology, VertexHandle, bfs_tree_edges,
 };
 
 fn main() {

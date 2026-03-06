@@ -1,4 +1,7 @@
-use sinistra::graph::{BasicGraph, Graph, GraphMut, HashMapStorage, HashMapTopology, Storage};
+use sinistra::graph::{
+    BasicGraph, Graph, GraphEdgesExt, GraphEdgesMutExt, GraphEndpointsExt, GraphNeighborsExt,
+    GraphVertexSetMutExt, HashMapStorage, HashMapTopology, Storage,
+};
 
 fn main() {
     type Vertex = String;

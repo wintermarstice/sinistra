@@ -1,12 +1,18 @@
 use std::collections::VecDeque;
 
-use crate::graph::{Color, ColorMap, EdgeHandle, Graph, Topology, VertexHandle};
+use crate::graph::{
+    Color, ColorMap, EdgeHandle, EdgeTopology, Graph, GraphEdgesExt, GraphEndpointsExt,
+    VertexHandle,
+};
 
 struct Dfs<'graph, G: Graph, C: ColorMap> {
     graph: &'graph G,
     colors: C,
     stack: Vec<VertexHandle>,
-    current: Option<(VertexHandle, <G::Topology as Topology>::OutEdges<'graph>)>,
+    current: Option<(
+        VertexHandle,
+        <G::Topology as EdgeTopology>::OutEdges<'graph>,
+    )>,
     pending: VecDeque<Event>,
 }
 

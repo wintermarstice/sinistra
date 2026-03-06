@@ -1,8 +1,8 @@
 use std::collections::HashMap;
 
 use sinistra::graph::{
-    BasicGraph, Graph, GraphMut, HashMapStorage, HashMapTopology, bfs_layers, has_path, is_dag,
-    topological_sort,
+    BasicGraph, Graph, GraphEdgesExt, GraphEdgesMutExt, GraphEndpointsExt, GraphVertexSetMutExt,
+    HashMapStorage, HashMapTopology, bfs_layers, has_path, is_dag, topological_sort,
 };
 
 fn dag_graph() -> (

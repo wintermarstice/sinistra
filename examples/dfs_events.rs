@@ -1,5 +1,6 @@
 use sinistra::graph::{
-    BasicGraph, DfsEvent, Graph, GraphMut, HashMapStorage, HashMapTopology, dfs,
+    BasicGraph, DfsEvent, Graph, GraphEdgesMutExt, GraphVertexSetMutExt, HashMapStorage,
+    HashMapTopology, dfs,
 };
 
 fn main() {

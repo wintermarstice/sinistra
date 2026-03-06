@@ -1,8 +1,8 @@
 use std::{collections::HashMap, f64, ops::Add};
 
 use sinistra::graph::{
-    BasicGraph, DijkstraEvent, Graph, GraphMut, HashMapStorage, HashMapTopology, VertexHandle,
-    Weight, Weighted, dijkstra,
+    BasicGraph, DijkstraEvent, Graph, GraphEdgesMutExt, GraphVertexSetMutExt, HashMapStorage,
+    HashMapTopology, VertexHandle, Weight, Weighted, dijkstra,
 };
 
 fn main() {
