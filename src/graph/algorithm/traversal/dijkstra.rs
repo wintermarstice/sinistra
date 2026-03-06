@@ -4,7 +4,8 @@ use std::{
 };
 
 use crate::graph::{
-    EdgeHandle, Graph, Policy, Storage, Traversal, TraversalEvent, VertexHandle, Weight, Weighted,
+    EdgeHandle, Graph, GraphEdgesExt, GraphEndpointsExt, Policy, Storage, Traversal,
+    TraversalEvent, VertexHandle, Weight, Weighted,
 };
 
 type Edge<G> = <<G as Graph>::Storage as Storage>::Edge;
