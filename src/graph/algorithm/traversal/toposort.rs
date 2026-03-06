@@ -1,6 +1,6 @@
 use std::collections::{HashMap, VecDeque};
 
-use crate::graph::{Graph, VertexHandle};
+use crate::graph::{Graph, GraphEdgesExt, GraphEndpointsExt, VertexHandle};
 
 pub fn topological_sort<G: Graph>(graph: &G) -> Vec<VertexHandle> {
     let mut indegree: HashMap<VertexHandle, usize> = HashMap::new();
@@ -15,6 +15,7 @@ pub fn topological_sort<G: Graph>(graph: &G) -> Vec<VertexHandle> {
         }
     }
 
+    // Do we have to really collect() it?
     let mut queue: VecDeque<VertexHandle> = indegree
         .iter()
         .filter_map(|(vertex, degree)| if *degree == 0 { Some(*vertex) } else { None })

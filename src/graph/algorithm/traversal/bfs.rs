@@ -1,6 +1,9 @@
 use std::collections::VecDeque;
 
-use crate::graph::{EdgeHandle, Graph, Policy, Traversal, TraversalEvent, VertexHandle, VisitMap};
+use crate::graph::{
+    EdgeHandle, Graph, GraphEdgesExt, GraphEndpointsExt, Policy, Traversal, TraversalEvent,
+    VertexHandle, VisitMap,
+};
 
 pub struct Bfs<'graph, G: Graph, V: VisitMap> {
     graph: &'graph G,
