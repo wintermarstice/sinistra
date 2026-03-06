@@ -3,7 +3,6 @@ mod endpoint_topology;
 mod hash_map;
 mod neighbor_topology;
 mod undirected;
-mod vec;
 mod vertex_set;
 
 pub use edge_topology::{EdgeTopology, EdgeTopologyMut};
@@ -11,7 +10,6 @@ pub use endpoint_topology::EndpointTopology;
 pub use hash_map::HashMapTopology;
 pub use neighbor_topology::NeighborTopology;
 pub use undirected::Undirected;
-pub use vec::VecTopology;
 pub use vertex_set::{VertexSet, VertexSetMut};
 
 use crate::graph::{EdgeHandle, VertexHandle};
