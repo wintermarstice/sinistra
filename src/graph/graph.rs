@@ -40,7 +40,7 @@ pub trait GraphMut: Graph {
 }
 
 #[derive(Debug, Clone, Default)]
-pub struct BasicGraph<S: Storage, T: Topology> {
+pub struct BasicGraph<S, T> {
     storage: S,
     topology: T,
 }
@@ -71,7 +71,7 @@ impl<S: Storage, T: Topology> Graph for BasicGraph<S, T> {
     }
 }
 
-impl<S: Storage, T: TopologyMut> GraphMut for BasicGraph<S, T> {
+impl<S: Storage, T: TopologyMut + Topology> GraphMut for BasicGraph<S, T> {
     fn storage_mut(&mut self) -> &mut Self::Storage {
         &mut self.storage
     }
