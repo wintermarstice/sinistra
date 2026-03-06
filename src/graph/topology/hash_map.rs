@@ -3,7 +3,10 @@ use std::{
     iter::Copied,
 };
 
-use crate::graph::{Checked, EdgeHandle, Topology, TopologyMut, VertexHandle};
+use crate::graph::{
+    Checked, EdgeHandle, EdgeTopology, EdgeTopologyMut, EndpointTopology, NeighborTopology,
+    Topology, TopologyMut, VertexHandle, VertexSet, VertexSetMut,
+};
 
 #[derive(Debug, Default, Clone)]
 pub struct HashMapTopology {
@@ -42,27 +45,18 @@ impl HashMapTopology {
     }
 }
 
-impl Topology for HashMapTopology {
+impl VertexSet for HashMapTopology {
     type Vertices<'a>
         = Copied<std::collections::hash_set::Iter<'a, VertexHandle>>
     where
         Self: 'a;
 
-    type Edges<'a>
-        = Copied<std::collections::hash_map::Keys<'a, EdgeHandle, (VertexHandle, VertexHandle)>>
-    where
-        Self: 'a;
+    fn vertices(&self) -> Self::Vertices<'_> {
+        self.vertices.iter().copied()
+    }
+}
 
-    type OutEdges<'a>
-        = Copied<std::slice::Iter<'a, EdgeHandle>>
-    where
-        Self: 'a;
-
-    type InEdges<'a>
-        = Copied<std::slice::Iter<'a, EdgeHandle>>
-    where
-        Self: 'a;
-
+impl NeighborTopology for HashMapTopology {
     type OutNeighbors<'a>
         = OutNeighbors<'a>
     where
@@ -72,50 +66,6 @@ impl Topology for HashMapTopology {
         = InNeighbors<'a>
     where
         Self: 'a;
-
-    type Adjacent<'a>
-        = Adjacent<'a>
-    where
-        Self: 'a;
-
-    fn vertices(&self) -> Self::Vertices<'_> {
-        self.vertices.iter().copied()
-    }
-
-    fn edges(&self) -> Self::Edges<'_> {
-        self.edges.keys().copied()
-    }
-
-    fn edge_endpoints(&self, edge: EdgeHandle) -> Option<(VertexHandle, VertexHandle)> {
-        let checked = Checked::generation(edge)?;
-        self.edges.get(&checked.into_inner()).copied()
-    }
-
-    fn out_edges(&self, v: VertexHandle) -> Self::OutEdges<'_> {
-        let checked = match self.checked_vertex(v) {
-            Some(checked) => checked,
-            None => return [].iter().copied(),
-        };
-
-        self.out_edges
-            .get(&checked.into_inner())
-            .map(|v| v.iter())
-            .unwrap_or([].iter())
-            .copied()
-    }
-
-    fn in_edges(&self, v: VertexHandle) -> Self::InEdges<'_> {
-        let checked = match self.checked_vertex(v) {
-            Some(checked) => checked,
-            None => return [].iter().copied(),
-        };
-
-        self.in_edges
-            .get(&checked.into_inner())
-            .map(|v| v.iter())
-            .unwrap_or([].iter())
-            .copied()
-    }
 
     fn out_neighbors(&self, v: VertexHandle) -> Self::OutNeighbors<'_> {
         let checked = match self.checked_vertex(v) {
@@ -162,6 +112,67 @@ impl Topology for HashMapTopology {
             edge_map: &self.edges,
         }
     }
+}
+
+impl EdgeTopology for HashMapTopology {
+    type Edges<'a>
+        = Copied<std::collections::hash_map::Keys<'a, EdgeHandle, (VertexHandle, VertexHandle)>>
+    where
+        Self: 'a;
+
+    type OutEdges<'a>
+        = Copied<std::slice::Iter<'a, EdgeHandle>>
+    where
+        Self: 'a;
+
+    type InEdges<'a>
+        = Copied<std::slice::Iter<'a, EdgeHandle>>
+    where
+        Self: 'a;
+
+    fn edges(&self) -> Self::Edges<'_> {
+        self.edges.keys().copied()
+    }
+
+    fn out_edges(&self, v: VertexHandle) -> Self::OutEdges<'_> {
+        let checked = match self.checked_vertex(v) {
+            Some(checked) => checked,
+            None => return [].iter().copied(),
+        };
+
+        self.out_edges
+            .get(&checked.into_inner())
+            .map(|v| v.iter())
+            .unwrap_or([].iter())
+            .copied()
+    }
+
+    fn in_edges(&self, v: VertexHandle) -> Self::InEdges<'_> {
+        let checked = match self.checked_vertex(v) {
+            Some(checked) => checked,
+            None => return [].iter().copied(),
+        };
+
+        self.in_edges
+            .get(&checked.into_inner())
+            .map(|v| v.iter())
+            .unwrap_or([].iter())
+            .copied()
+    }
+}
+
+impl EndpointTopology for HashMapTopology {
+    fn edge_endpoints(&self, edge: EdgeHandle) -> Option<(VertexHandle, VertexHandle)> {
+        let checked = Checked::generation(edge)?;
+        self.edges.get(&checked.into_inner()).copied()
+    }
+}
+
+impl Topology for HashMapTopology {
+    type Adjacent<'a>
+        = Adjacent<'a>
+    where
+        Self: 'a;
 
     fn adjacent(&self, v: VertexHandle) -> Self::Adjacent<'_> {
         let checked = match self.checked_vertex(v) {
@@ -194,7 +205,7 @@ impl Topology for HashMapTopology {
     }
 }
 
-impl TopologyMut for HashMapTopology {
+impl VertexSetMut for HashMapTopology {
     fn add_vertex(&mut self, handle: VertexHandle) -> bool {
         let Some(checked) = Checked::generation(handle) else {
             return false;
@@ -210,6 +221,33 @@ impl TopologyMut for HashMapTopology {
         true
     }
 
+    fn remove_vertex(&mut self, handle: VertexHandle) -> bool {
+        let checked = match self.checked_vertex(handle) {
+            Some(checked) => checked,
+            None => return false,
+        };
+
+        if !self.vertices.remove(&checked.into_inner()) {
+            return false;
+        }
+
+        if let Some(edges) = self.out_edges.remove(&handle) {
+            for edge in edges {
+                self.remove_edge(edge);
+            }
+        }
+
+        if let Some(edges) = self.in_edges.remove(&handle) {
+            for edge in edges {
+                self.remove_edge(edge);
+            }
+        }
+
+        true
+    }
+}
+
+impl EdgeTopologyMut for HashMapTopology {
     fn add_edge(&mut self, handle: EdgeHandle, source: VertexHandle, target: VertexHandle) -> bool {
         let Some(checked_handle) = Checked::generation(handle) else {
             return false;
@@ -255,32 +293,9 @@ impl TopologyMut for HashMapTopology {
 
         true
     }
-
-    fn remove_vertex(&mut self, handle: VertexHandle) -> bool {
-        let checked = match self.checked_vertex(handle) {
-            Some(checked) => checked,
-            None => return false,
-        };
-
-        if !self.vertices.remove(&checked.into_inner()) {
-            return false;
-        }
-
-        if let Some(edges) = self.out_edges.remove(&handle) {
-            for edge in edges {
-                self.remove_edge(edge);
-            }
-        }
-
-        if let Some(edges) = self.in_edges.remove(&handle) {
-            for edge in edges {
-                self.remove_edge(edge);
-            }
-        }
-
-        true
-    }
 }
+
+impl TopologyMut for HashMapTopology {}
 
 pub struct OutNeighbors<'a> {
     edges: std::slice::Iter<'a, EdgeHandle>,
