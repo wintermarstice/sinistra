@@ -33,7 +33,6 @@ Algorithms operate on the `Graph` trait, making them reusable across different g
 - `BasicGraph` implementation with pluggable storage and topology
 - Built-in storage and topology implementations:
   - `HashMapStorage` + `HashMapTopology`
-  - `VecStorage` + `VecTopology`
 - Directed and undirected graph topologies (`Undirected<T>` wrapper)
 - Traversal and shortest-path algorithms:
   - `bfs`, `bfs_vertices`, `bfs_tree_edges`, `bfs_layers`, `has_path`
@@ -51,7 +50,7 @@ Add `sinistra` to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-sinistra = "0.1.0-202603060014"
+sinistra = "0.1.0-202603060803"
 ```
 
 Create a graph:

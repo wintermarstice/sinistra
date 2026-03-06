@@ -1,6 +1,6 @@
 [package]
 name = "sinistra"
-version = "0.1.0-202603060014"
+version = "0.1.0-202603060803"
 edition = "2024"
 authors = ["Buğra Kadirhan <bugrakadirhan@proton.me>"]
 description = "A generic graph framework with pluggable storage and topology and streaming graph algorithms."
