@@ -1,7 +1,7 @@
 use std::collections::{HashMap, HashSet};
 
 use sinistra::graph::{
-    BasicGraph, Color, ColorMap, GenerationalColorMap, GenerationalVisitMap, GraphMut,
+    BasicGraph, Color, ColorMap, GenerationalColorMap, GenerationalVisitMap, GraphVertexSetMutExt,
     HashMapStorage, HashMapTopology, VertexHandle, VisitMap,
 };
 

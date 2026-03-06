@@ -2,9 +2,9 @@ use std::collections::{HashMap, HashSet};
 use std::{f64, ops::Add};
 
 use sinistra::graph::{
-    BasicGraph, BfsEvent, DfsEvent, DijkstraEvent, Graph, GraphMut, HashMapStorage,
-    HashMapTopology, TraversalEvent, VertexHandle, Weight, Weighted, bfs_tree_edges, bfs_vertices,
-    dfs, dijkstra,
+    BasicGraph, BfsEvent, DfsEvent, DijkstraEvent, Graph, GraphEdgesMutExt, GraphVertexSetMutExt,
+    HashMapStorage, HashMapTopology, TraversalEvent, VertexHandle, Weight, Weighted,
+    bfs_tree_edges, bfs_vertices, dfs, dijkstra,
 };
 
 fn make_graph() -> (
