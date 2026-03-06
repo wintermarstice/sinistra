@@ -1,11 +1,10 @@
 use crate::graph::{
     EdgeHandle, EdgeTopology, EdgeTopologyMut, EndpointTopology, Graph, GraphMut, NeighborTopology,
-    Storage, VertexHandle, VertexSet, VertexSetMut,
+    Storage, VertexHandle, VertexSetMut,
 };
 
 type Vertex<S> = <S as Storage>::Vertex;
 type Edge<S> = <S as Storage>::Edge;
-type Vertices<'a, T> = <T as VertexSet>::Vertices<'a>;
 
 pub trait GraphNeighborsExt: Graph
 where
