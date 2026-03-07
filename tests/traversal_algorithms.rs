@@ -68,8 +68,7 @@ fn bfs_emits_discover_and_finish_events() {
 fn dfs_discovers_and_finishes_all_reachable_vertices() {
     let (graph, start) = make_graph();
 
-    let events: Vec<_> =
-        dfs::<_, HashMap<VertexHandle, sinistra::graph::Color>>(&graph, start).collect();
+    let events: Vec<_> = dfs::<_, HashMap<VertexHandle, _>>(&graph, start).collect();
 
     let discover = events
         .iter()
