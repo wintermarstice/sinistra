@@ -50,7 +50,7 @@ Add `sinistra` to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-sinistra = "0.1.0-202603071506"
+sinistra = "0.1.0-202603071957"
 ```
 
 Create a graph:
