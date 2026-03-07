@@ -2,8 +2,8 @@ use std::collections::HashSet;
 
 use sinistra::graph::{
     BasicGraph, EdgeTopologyMut, Graph, GraphEdgesMutExt, GraphEndpointsExt, GraphMut,
-    GraphVertexSetMutExt, HashMapStorage, HashMapTopology, NeighborTopology, Storage, Topology,
-    VertexSetMut,
+    GraphVertexSetMutExt, HashMapStorage, HashMapTopology, NeighborTopology, Storage, StorageMut,
+    Topology, VertexSetMut,
 };
 
 #[test]

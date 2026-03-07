@@ -1,6 +1,6 @@
 use std::sync::atomic::{AtomicU32, Ordering};
 
-use crate::graph::{Checked, EdgeHandle, Storage, VertexHandle};
+use crate::graph::{Checked, EdgeHandle, Storage, StorageMut, VertexHandle};
 
 static DISCRIMINANT_COUNTER: AtomicU32 = AtomicU32::new(10_000);
 
@@ -52,7 +52,9 @@ impl<V, E> Storage for VecStorage<V, E> {
         let checked = self.checked_edge(handle)?;
         self.edges.get(checked.index())?.as_ref()
     }
+}
 
+impl<V, E> StorageMut for VecStorage<V, E> {
     fn vertex_mut(&mut self, handle: VertexHandle) -> Option<&mut Self::Vertex> {
         let checked = self.checked_vertex(handle)?;
         self.vertices.get_mut(checked.index())?.as_mut()

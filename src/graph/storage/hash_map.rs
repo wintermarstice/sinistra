@@ -3,7 +3,7 @@ use std::{
     sync::atomic::{AtomicU32, Ordering},
 };
 
-use crate::graph::{Checked, EdgeHandle, Storage, VertexHandle};
+use crate::graph::{Checked, EdgeHandle, Storage, StorageMut, VertexHandle};
 
 static DISCRIMINANT_COUNTER: AtomicU32 = AtomicU32::new(0);
 
@@ -45,7 +45,9 @@ impl<V, E> Storage for HashMapStorage<V, E> {
         let checked = self.checked_edge(handle)?;
         self.edges.get(&checked.into_inner())
     }
+}
 
+impl<V, E> StorageMut for HashMapStorage<V, E> {
     fn vertex_mut(&mut self, handle: VertexHandle) -> Option<&mut V> {
         let checked = self.checked_vertex(handle)?;
         self.vertices.get_mut(&checked.into_inner())

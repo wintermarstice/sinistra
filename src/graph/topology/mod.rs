@@ -23,4 +23,4 @@ pub trait Topology: EndpointTopology {
     fn adjacent(&self, v: VertexHandle) -> Self::Adjacent<'_>;
 }
 
-pub trait TopologyMut: EdgeTopologyMut {}
+pub trait TopologyMut: EdgeTopologyMut + Topology {}

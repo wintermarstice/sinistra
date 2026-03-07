@@ -1,4 +1,4 @@
-use crate::graph::{Graph, GraphMut, Storage, Topology, TopologyMut, Undirected};
+use crate::graph::{Graph, GraphMut, Storage, StorageMut, Topology, TopologyMut, Undirected};
 
 #[derive(Debug, Clone, Default)]
 pub struct BasicGraph<S, T> {
@@ -32,7 +32,10 @@ impl<S: Storage, T: Topology> Graph for BasicGraph<S, T> {
     }
 }
 
-impl<S: Storage, T: TopologyMut + Topology> GraphMut for BasicGraph<S, T> {
+impl<S: StorageMut, T: TopologyMut> GraphMut for BasicGraph<S, T> {
+    type StorageMut = S;
+    type TopologyMut = T;
+
     fn storage_mut(&mut self) -> &mut Self::Storage {
         &mut self.storage
     }

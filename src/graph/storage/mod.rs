@@ -12,7 +12,9 @@ pub trait Storage {
 
     fn vertex(&self, handle: VertexHandle) -> Option<&Self::Vertex>;
     fn edge(&self, handle: EdgeHandle) -> Option<&Self::Edge>;
+}
 
+pub trait StorageMut: Storage {
     fn vertex_mut(&mut self, handle: VertexHandle) -> Option<&mut Self::Vertex>;
     fn edge_mut(&mut self, handle: EdgeHandle) -> Option<&mut Self::Edge>;
     fn add_vertex(&mut self, vertex: Self::Vertex) -> VertexHandle;
