@@ -1,6 +1,4 @@
-use crate::graph::{
-    EdgeHandle, Storage, StorageMut, Topology, TopologyMut, VertexHandle, VertexSet,
-};
+use crate::graph::{EdgeHandle, Storage, StorageMut, VertexHandle, VertexSet, VertexSetMut};
 
 type Vertex<S> = <S as Storage>::Vertex;
 type Edge<S> = <S as Storage>::Edge;
@@ -8,7 +6,7 @@ type Vertices<'a, T> = <T as VertexSet>::Vertices<'a>;
 
 pub trait Graph {
     type Storage: Storage;
-    type Topology: Topology;
+    type Topology: VertexSet;
 
     fn storage(&self) -> &Self::Storage;
     fn topology(&self) -> &Self::Topology;
@@ -28,7 +26,7 @@ pub trait Graph {
 
 pub trait GraphMut: Graph {
     type StorageMut: StorageMut<Vertex = Vertex<Self::Storage>, Edge = Edge<Self::Storage>>;
-    type TopologyMut: TopologyMut;
+    type TopologyMut: VertexSetMut;
 
     fn storage_mut(&mut self) -> &mut Self::StorageMut;
     fn topology_mut(&mut self) -> &mut Self::TopologyMut;

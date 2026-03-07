@@ -53,7 +53,7 @@ where
 
 pub trait GraphVertexSetMutExt: GraphMut
 where
-    Self::Topology: VertexSetMut,
+    Self::TopologyMut: VertexSetMut,
 {
     fn add_vertex(&mut self, vertex: Vertex<Self::Storage>) -> VertexHandle {
         let handle = self.storage_mut().add_vertex(vertex);
@@ -72,7 +72,7 @@ where
 
 pub trait GraphEdgesMutExt: GraphMut
 where
-    Self::Topology: EdgeTopologyMut,
+    Self::TopologyMut: EdgeTopologyMut,
 {
     fn add_edge(
         &mut self,
@@ -118,13 +118,13 @@ where
 impl<G> GraphVertexSetMutExt for G
 where
     G: GraphMut,
-    G::Topology: VertexSetMut,
+    G::TopologyMut: VertexSetMut,
 {
 }
 
 impl<G> GraphEdgesMutExt for G
 where
     G: GraphMut,
-    G::Topology: EdgeTopologyMut,
+    G::TopologyMut: EdgeTopologyMut,
 {
 }
