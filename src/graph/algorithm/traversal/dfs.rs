@@ -1,11 +1,11 @@
 use std::collections::VecDeque;
 
 use crate::graph::{
-    Color, ColorMap, EdgeHandle, EdgeTopology, Graph, GraphEdgesExt, GraphEndpointsExt,
+    Color, EdgeHandle, EdgeTopology, Graph, GraphEdgesExt, GraphEndpointsExt, PropertyMap,
     VertexHandle,
 };
 
-struct Dfs<'graph, G: Graph, C: ColorMap> {
+struct Dfs<'graph, G: Graph, C: PropertyMap<Key = VertexHandle, Value = Color>> {
     graph: &'graph G,
     colors: C,
     stack: Vec<VertexHandle>,
@@ -27,12 +27,12 @@ pub enum Event {
     FinishVertex(VertexHandle),
 }
 
-impl<'graph, G: Graph, C: ColorMap> Dfs<'graph, G, C> {
+impl<'graph, G: Graph, C: PropertyMap<Key = VertexHandle, Value = Color>> Dfs<'graph, G, C> {
     pub fn new(graph: &'graph G, start: VertexHandle, mut colors: C) -> Self {
         let mut stack = Vec::new();
         let mut pending = VecDeque::new();
 
-        colors.set_color(start, Color::Black);
+        colors.set_property(start, Color::Black);
         stack.push(start);
         pending.push_back(Event::DiscoverVertex(start));
 
@@ -46,7 +46,9 @@ impl<'graph, G: Graph, C: ColorMap> Dfs<'graph, G, C> {
     }
 }
 
-impl<'graph, G: Graph, C: ColorMap> Iterator for Dfs<'graph, G, C> {
+impl<'graph, G: Graph, C: PropertyMap<Key = VertexHandle, Value = Color>> Iterator
+    for Dfs<'graph, G, C>
+{
     type Item = Event;
 
     fn next(&mut self) -> Option<Self::Item> {
@@ -64,9 +66,9 @@ impl<'graph, G: Graph, C: ColorMap> Iterator for Dfs<'graph, G, C> {
                     self.pending
                         .push_back(Event::ExamineEdge(*handle, edge, target));
 
-                    match self.colors.color(target) {
+                    match self.colors.get_property(&target).unwrap_or(&Color::White) {
                         Color::White => {
-                            self.colors.set_color(target, Color::Gray);
+                            self.colors.set_property(target, Color::Gray);
                             self.stack.push(target);
 
                             self.pending
@@ -91,7 +93,7 @@ impl<'graph, G: Graph, C: ColorMap> Iterator for Dfs<'graph, G, C> {
                 let vertex = *handle;
                 self.current = None;
 
-                self.colors.set_color(vertex, Color::Black);
+                self.colors.set_property(vertex, Color::Black);
 
                 return Some(Event::FinishVertex(vertex));
             }
@@ -103,7 +105,7 @@ impl<'graph, G: Graph, C: ColorMap> Iterator for Dfs<'graph, G, C> {
     }
 }
 
-pub fn dfs<G: Graph, C: ColorMap + Default>(
+pub fn dfs<G: Graph, C: PropertyMap<Key = VertexHandle, Value = Color> + Default>(
     graph: &G,
     start: VertexHandle,
 ) -> impl Iterator<Item = Event> {

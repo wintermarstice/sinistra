@@ -3,6 +3,10 @@ use std::{
     hash::Hash,
 };
 
+mod color;
+
+pub(crate) use color::Color;
+
 pub trait PropertyMap {
     type Key;
     type Value;

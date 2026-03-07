@@ -1,17 +1,17 @@
 use std::collections::VecDeque;
 
 use crate::graph::{
-    EdgeHandle, Graph, GraphEdgesExt, GraphEndpointsExt, Policy, Traversal, TraversalEvent,
-    VertexHandle, VisitMap,
+    EdgeHandle, Graph, GraphEdgesExt, GraphEndpointsExt, Policy, PropertySet, Traversal,
+    TraversalEvent, VertexHandle,
 };
 
-pub struct Bfs<'graph, G: Graph, V: VisitMap> {
+pub struct Bfs<'graph, G: Graph, V: PropertySet<Key = VertexHandle>> {
     graph: &'graph G,
     frontier: VecDeque<VertexHandle>,
     visited: V,
 }
 
-impl<'graph, G: Graph, V: VisitMap> Bfs<'graph, G, V> {
+impl<'graph, G: Graph, V: PropertySet<Key = VertexHandle>> Bfs<'graph, G, V> {
     pub fn new(graph: &'graph G, start: VertexHandle, visited: V) -> Traversal<Self> {
         let bfs = Self {
             graph,
@@ -23,7 +23,7 @@ impl<'graph, G: Graph, V: VisitMap> Bfs<'graph, G, V> {
     }
 }
 
-impl<'graph, G: Graph, V: VisitMap> Policy for Bfs<'graph, G, V> {
+impl<'graph, G: Graph, V: PropertySet<Key = VertexHandle>> Policy for Bfs<'graph, G, V> {
     type Event = Event;
     type Item = VertexHandle;
 
@@ -45,7 +45,7 @@ impl<'graph, G: Graph, V: VisitMap> Policy for Bfs<'graph, G, V> {
                 edge,
             }));
 
-            if self.visited.visit(target) {
+            if self.visited.mark(target, true) {
                 self.frontier.push_back(target);
 
                 pending.push_back(Event::TreeEdge {
@@ -73,14 +73,14 @@ pub enum Event {
     },
 }
 
-pub fn bfs<G: Graph, V: VisitMap + Default>(
+pub fn bfs<G: Graph, V: PropertySet<Key = VertexHandle> + Default>(
     graph: &G,
     start: VertexHandle,
 ) -> Traversal<Bfs<'_, G, V>> {
     Bfs::new(graph, start, V::default())
 }
 
-pub fn bfs_vertices<G: Graph, V: VisitMap + Default>(
+pub fn bfs_vertices<G: Graph, V: PropertySet<Key = VertexHandle> + Default>(
     graph: &G,
     start: VertexHandle,
 ) -> impl Iterator<Item = VertexHandle> {
@@ -93,7 +93,7 @@ pub fn bfs_vertices<G: Graph, V: VisitMap + Default>(
     })
 }
 
-pub fn bfs_tree_edges<G: Graph, V: VisitMap + Default>(
+pub fn bfs_tree_edges<G: Graph, V: PropertySet<Key = VertexHandle> + Default>(
     graph: &G,
     start: VertexHandle,
 ) -> impl Iterator<Item = (VertexHandle, EdgeHandle, VertexHandle)> {
