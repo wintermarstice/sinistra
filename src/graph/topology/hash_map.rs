@@ -306,7 +306,7 @@ impl<'a> Iterator for OutNeighbors<'a> {
     type Item = VertexHandle;
 
     fn next(&mut self) -> Option<Self::Item> {
-        while let Some(edge) = self.edges.next() {
+        for edge in self.edges.by_ref() {
             if let Some((_, target)) = self.edge_map.get(edge) {
                 return Some(*target);
             }
@@ -325,7 +325,7 @@ impl<'a> Iterator for InNeighbors<'a> {
     type Item = VertexHandle;
 
     fn next(&mut self) -> Option<Self::Item> {
-        while let Some(edge) = self.edges.next() {
+        for edge in self.edges.by_ref() {
             if let Some((source, _)) = self.edge_map.get(edge) {
                 return Some(*source);
             }
@@ -345,13 +345,13 @@ impl<'a> Iterator for Adjacent<'a> {
     type Item = (VertexHandle, EdgeHandle);
 
     fn next(&mut self) -> Option<Self::Item> {
-        while let Some(edge) = self.out_edges.next() {
+        for edge in self.out_edges.by_ref() {
             if let Some((_, target)) = self.edge_map.get(edge) {
                 return Some((*target, *edge));
             }
         }
 
-        while let Some(edge) = self.in_edges.next() {
+        for edge in self.in_edges.by_ref() {
             if let Some((source, _)) = self.edge_map.get(edge) {
                 return Some((*source, *edge));
             }

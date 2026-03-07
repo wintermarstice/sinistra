@@ -93,7 +93,7 @@ impl GenerationalVisitMap {
 
 impl VisitMap for GenerationalVisitMap {
     fn visit(&mut self, vertex: VertexHandle) -> bool {
-        let index = vertex.index() as usize;
+        let index = vertex.index();
         let generation = self.generation;
 
         if index >= self.generations.len() {
@@ -109,7 +109,7 @@ impl VisitMap for GenerationalVisitMap {
     }
 
     fn is_visited(&self, vertex: VertexHandle) -> bool {
-        let index = vertex.index() as usize;
+        let index = vertex.index();
         let generation = self.generation;
 
         if index >= self.generations.len() {
