@@ -4,8 +4,8 @@ use std::{
 };
 
 use crate::graph::{
-    EdgeHandle, Graph, GraphEdgesExt, GraphEndpointsExt, Policy, Storage, Traversal,
-    TraversalEvent, VertexHandle, Weight, Weighted,
+    EdgeHandle, EndpointTopology, Graph, GraphEdgesExt, GraphEndpointsExt, Policy, Storage,
+    Traversal, TraversalEvent, VertexHandle, Weight, Weighted,
 };
 
 type Edge<G> = <<G as Graph>::Storage as Storage>::Edge;
@@ -48,6 +48,7 @@ where
     G: Graph,
     Edge<G>: Weighted<Weight = W>,
     W: Weight,
+    G::Topology: EndpointTopology,
 {
     type Event = Event<W>;
     type Item = (W, VertexHandle);
@@ -104,6 +105,7 @@ where
     G: Graph,
     Edge<G>: Weighted<Weight = W>,
     W: Weight,
+    G::Topology: EndpointTopology,
 {
     let policy = Dijkstra::new(graph);
     Traversal::new(policy, start)
@@ -117,6 +119,7 @@ where
     G: Graph,
     Edge<G>: Weighted<Weight = W>,
     W: Weight,
+    G::Topology: EndpointTopology,
 {
     dijkstra::<G, W>(graph, start).filter_map(|event| {
         if let Event::RelaxEdge { target, weight, .. } = event {
