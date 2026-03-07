@@ -1,11 +1,16 @@
 use std::collections::VecDeque;
 
 use crate::graph::{
-    Color, EdgeHandle, EdgeTopology, Graph, GraphEdgesExt, GraphEndpointsExt, PropertyMap,
-    VertexHandle,
+    Color, EdgeHandle, EdgeTopology, EndpointTopology, Graph, GraphEdgesExt, GraphEndpointsExt,
+    PropertyMap, VertexHandle,
 };
 
-struct Dfs<'graph, G: Graph, C: PropertyMap<Key = VertexHandle, Value = Color>> {
+struct Dfs<'graph, G, C>
+where
+    G: Graph,
+    C: PropertyMap<Key = VertexHandle, Value = Color>,
+    G::Topology: EdgeTopology,
+{
     graph: &'graph G,
     colors: C,
     stack: Vec<VertexHandle>,
@@ -27,7 +32,12 @@ pub enum Event {
     FinishVertex(VertexHandle),
 }
 
-impl<'graph, G: Graph, C: PropertyMap<Key = VertexHandle, Value = Color>> Dfs<'graph, G, C> {
+impl<'graph, G, C: PropertyMap<Key = VertexHandle, Value = Color>> Dfs<'graph, G, C>
+where
+    G: Graph,
+    C: PropertyMap<Key = VertexHandle, Value = Color>,
+    G::Topology: EdgeTopology,
+{
     pub fn new(graph: &'graph G, start: VertexHandle, mut colors: C) -> Self {
         let mut stack = Vec::new();
         let mut pending = VecDeque::new();
@@ -46,8 +56,11 @@ impl<'graph, G: Graph, C: PropertyMap<Key = VertexHandle, Value = Color>> Dfs<'g
     }
 }
 
-impl<'graph, G: Graph, C: PropertyMap<Key = VertexHandle, Value = Color>> Iterator
-    for Dfs<'graph, G, C>
+impl<'graph, G, C> Iterator for Dfs<'graph, G, C>
+where
+    G: Graph,
+    C: PropertyMap<Key = VertexHandle, Value = Color>,
+    G::Topology: EndpointTopology,
 {
     type Item = Event;
 
@@ -105,9 +118,11 @@ impl<'graph, G: Graph, C: PropertyMap<Key = VertexHandle, Value = Color>> Iterat
     }
 }
 
-pub fn dfs<G: Graph, C: PropertyMap<Key = VertexHandle, Value = Color> + Default>(
-    graph: &G,
-    start: VertexHandle,
-) -> impl Iterator<Item = Event> {
+pub fn dfs<G, C>(graph: &G, start: VertexHandle) -> impl Iterator<Item = Event>
+where
+    G: Graph,
+    C: PropertyMap<Key = VertexHandle, Value = Color> + Default,
+    G::Topology: EndpointTopology,
+{
     Dfs::new(graph, start, C::default())
 }

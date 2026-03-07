@@ -1,17 +1,22 @@
 use std::collections::VecDeque;
 
 use crate::graph::{
-    EdgeHandle, Graph, GraphEdgesExt, GraphEndpointsExt, Policy, PropertySet, Traversal,
-    TraversalEvent, VertexHandle,
+    EdgeHandle, EndpointTopology, Graph, GraphEdgesExt, GraphEndpointsExt, Policy, PropertySet,
+    Traversal, TraversalEvent, VertexHandle,
 };
 
-pub struct Bfs<'graph, G: Graph, V: PropertySet<Key = VertexHandle>> {
+pub struct Bfs<'graph, G, V> {
     graph: &'graph G,
     frontier: VecDeque<VertexHandle>,
     visited: V,
 }
 
-impl<'graph, G: Graph, V: PropertySet<Key = VertexHandle>> Bfs<'graph, G, V> {
+impl<'graph, G, V> Bfs<'graph, G, V>
+where
+    G: Graph,
+    V: PropertySet<Key = VertexHandle> + Default,
+    G::Topology: EndpointTopology,
+{
     pub fn new(graph: &'graph G, start: VertexHandle, visited: V) -> Traversal<Self> {
         let bfs = Self {
             graph,
@@ -23,7 +28,12 @@ impl<'graph, G: Graph, V: PropertySet<Key = VertexHandle>> Bfs<'graph, G, V> {
     }
 }
 
-impl<'graph, G: Graph, V: PropertySet<Key = VertexHandle>> Policy for Bfs<'graph, G, V> {
+impl<'graph, G, V> Policy for Bfs<'graph, G, V>
+where
+    G: Graph,
+    V: PropertySet<Key = VertexHandle>,
+    G::Topology: EndpointTopology,
+{
     type Event = Event;
     type Item = VertexHandle;
 
@@ -73,17 +83,21 @@ pub enum Event {
     },
 }
 
-pub fn bfs<G: Graph, V: PropertySet<Key = VertexHandle> + Default>(
-    graph: &G,
-    start: VertexHandle,
-) -> Traversal<Bfs<'_, G, V>> {
+pub fn bfs<G, V>(graph: &G, start: VertexHandle) -> Traversal<Bfs<'_, G, V>>
+where
+    G: Graph,
+    V: PropertySet<Key = VertexHandle> + Default,
+    G::Topology: EndpointTopology,
+{
     Bfs::new(graph, start, V::default())
 }
 
-pub fn bfs_vertices<G: Graph, V: PropertySet<Key = VertexHandle> + Default>(
-    graph: &G,
-    start: VertexHandle,
-) -> impl Iterator<Item = VertexHandle> {
+pub fn bfs_vertices<G, V>(graph: &G, start: VertexHandle) -> impl Iterator<Item = VertexHandle>
+where
+    G: Graph,
+    V: PropertySet<Key = VertexHandle> + Default,
+    G::Topology: EndpointTopology,
+{
     bfs::<G, V>(graph, start).filter_map(|event| {
         if let Event::Core(TraversalEvent::Discover { vertex }) = event {
             Some(vertex)
@@ -93,10 +107,15 @@ pub fn bfs_vertices<G: Graph, V: PropertySet<Key = VertexHandle> + Default>(
     })
 }
 
-pub fn bfs_tree_edges<G: Graph, V: PropertySet<Key = VertexHandle> + Default>(
+pub fn bfs_tree_edges<G, V>(
     graph: &G,
     start: VertexHandle,
-) -> impl Iterator<Item = (VertexHandle, EdgeHandle, VertexHandle)> {
+) -> impl Iterator<Item = (VertexHandle, EdgeHandle, VertexHandle)>
+where
+    G: Graph,
+    V: PropertySet<Key = VertexHandle> + Default,
+    G::Topology: EndpointTopology,
+{
     bfs::<G, V>(graph, start).filter_map(|event| {
         if let Event::TreeEdge {
             source,
