@@ -1,6 +1,6 @@
 use crate::graph::{
     EdgeHandle, EdgeTopology, EdgeTopologyMut, EndpointTopology, Graph, GraphMut, NeighborTopology,
-    Storage, VertexHandle, VertexSetMut,
+    Storage, StorageMut, VertexHandle, VertexSetMut,
 };
 
 type Vertex<S> = <S as Storage>::Vertex;
