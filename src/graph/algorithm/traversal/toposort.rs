@@ -1,8 +1,12 @@
 use std::collections::{HashMap, VecDeque};
 
-use crate::graph::{Graph, GraphEdgesExt, GraphEndpointsExt, VertexHandle};
+use crate::graph::{EndpointTopology, Graph, GraphEdgesExt, GraphEndpointsExt, VertexHandle};
 
-pub fn topological_sort<G: Graph>(graph: &G) -> Vec<VertexHandle> {
+pub fn topological_sort<G>(graph: &G) -> Vec<VertexHandle>
+where
+    G: Graph,
+    G::Topology: EndpointTopology,
+{
     let mut indegree: HashMap<VertexHandle, usize> = HashMap::new();
 
     for vertex in graph.vertices() {
@@ -48,11 +52,19 @@ pub fn topological_sort<G: Graph>(graph: &G) -> Vec<VertexHandle> {
     order
 }
 
-pub fn is_dag<G: Graph>(graph: &G) -> bool {
+pub fn is_dag<G>(graph: &G) -> bool
+where
+    G: Graph,
+    G::Topology: EndpointTopology,
+{
     topological_sort(graph).len() == graph.vertices().count()
 }
 
-pub fn bfs_layers<G: Graph>(graph: &G, start: VertexHandle) -> Vec<Vec<VertexHandle>> {
+pub fn bfs_layers<G>(graph: &G, start: VertexHandle) -> Vec<Vec<VertexHandle>>
+where
+    G: Graph,
+    G::Topology: EndpointTopology,
+{
     let mut visited = std::collections::HashSet::new();
     let mut queue = VecDeque::new();
     let mut layers = Vec::new();
@@ -81,7 +93,11 @@ pub fn bfs_layers<G: Graph>(graph: &G, start: VertexHandle) -> Vec<Vec<VertexHan
     layers
 }
 
-pub fn has_path<G: Graph>(graph: &G, source: VertexHandle, target: VertexHandle) -> bool {
+pub fn has_path<G>(graph: &G, source: VertexHandle, target: VertexHandle) -> bool
+where
+    G: Graph,
+    G::Topology: EndpointTopology,
+{
     if source == target {
         return true;
     }
