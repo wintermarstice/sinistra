@@ -72,11 +72,11 @@ fn dfs_discovers_and_finishes_all_reachable_vertices() {
 
     let discover = events
         .iter()
-        .filter(|event| matches!(event, DfsEvent::DiscoverVertex(_)))
+        .filter(|event| matches!(event, DfsEvent::Core(TraversalEvent::Discover { .. })))
         .count();
     let finish = events
         .iter()
-        .filter(|event| matches!(event, DfsEvent::FinishVertex(_)))
+        .filter(|event| matches!(event, DfsEvent::Core(TraversalEvent::Finish { .. })))
         .count();
 
     assert_eq!(discover, 4);

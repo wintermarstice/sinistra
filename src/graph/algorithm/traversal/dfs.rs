@@ -2,7 +2,7 @@ use std::collections::VecDeque;
 
 use crate::graph::{
     Color, EdgeHandle, EdgeTopology, EndpointTopology, Graph, GraphEdgesExt, GraphEndpointsExt,
-    PropertyMap, VertexHandle,
+    PropertyMap, TraversalEvent, VertexHandle,
 };
 
 struct Dfs<'graph, G, C>
@@ -23,13 +23,31 @@ where
 
 #[derive(Debug, Clone, Copy)]
 pub enum Event {
-    DiscoverVertex(VertexHandle),
-    ExamineEdge(VertexHandle, EdgeHandle, VertexHandle),
-    TreeEdge(VertexHandle, EdgeHandle, VertexHandle),
-    BackEdge(VertexHandle, EdgeHandle, VertexHandle),
-    ForwardEdge(VertexHandle, EdgeHandle, VertexHandle),
-    CrossEdge(VertexHandle, EdgeHandle, VertexHandle),
-    FinishVertex(VertexHandle),
+    Core(TraversalEvent),
+
+    TreeEdge {
+        source: VertexHandle,
+        edge: EdgeHandle,
+        target: VertexHandle,
+    },
+
+    BackEdge {
+        source: VertexHandle,
+        edge: EdgeHandle,
+        target: VertexHandle,
+    },
+
+    ForwardEdge {
+        source: VertexHandle,
+        edge: EdgeHandle,
+        target: VertexHandle,
+    },
+
+    CrossEdge {
+        source: VertexHandle,
+        edge: EdgeHandle,
+        target: VertexHandle,
+    },
 }
 
 impl<'graph, G, C: PropertyMap<Key = VertexHandle, Value = Color>> Dfs<'graph, G, C>
@@ -44,7 +62,7 @@ where
 
         colors.set_property(start, Color::Black);
         stack.push(start);
-        pending.push_back(Event::DiscoverVertex(start));
+        pending.push_back(Event::Core(TraversalEvent::Discover { vertex: start }));
 
         Self {
             graph,
@@ -76,27 +94,42 @@ where
                         continue;
                     };
 
-                    self.pending
-                        .push_back(Event::ExamineEdge(*handle, edge, target));
+                    self.pending.push_back(Event::Core(TraversalEvent::Examine {
+                        source: *handle,
+                        edge,
+                        target,
+                    }));
 
                     match self.colors.get_property(&target).unwrap_or(&Color::White) {
                         Color::White => {
                             self.colors.set_property(target, Color::Gray);
                             self.stack.push(target);
 
+                            self.pending.push_back(Event::TreeEdge {
+                                source: *handle,
+                                edge,
+                                target,
+                            });
                             self.pending
-                                .push_back(Event::TreeEdge(*handle, edge, target));
-                            self.pending.push_back(Event::DiscoverVertex(target));
+                                .push_back(Event::Core(TraversalEvent::Discover {
+                                    vertex: target,
+                                }));
                         }
 
                         Color::Gray => {
-                            self.pending
-                                .push_back(Event::BackEdge(*handle, edge, target));
+                            self.pending.push_back(Event::BackEdge {
+                                source: *handle,
+                                edge,
+                                target,
+                            });
                         }
 
                         Color::Black => {
-                            self.pending
-                                .push_back(Event::CrossEdge(*handle, edge, target));
+                            self.pending.push_back(Event::CrossEdge {
+                                source: *handle,
+                                edge,
+                                target,
+                            });
                         }
                     }
 
@@ -108,7 +141,7 @@ where
 
                 self.colors.set_property(vertex, Color::Black);
 
-                return Some(Event::FinishVertex(vertex));
+                return Some(Event::Core(TraversalEvent::Finish { vertex }));
             }
 
             let handle = self.stack.pop()?;

@@ -1,6 +1,6 @@
 use sinistra::graph::{
     BasicGraph, DfsEvent, Graph, GraphEdgesMutExt, GraphVertexSetMutExt, HashMapStorage,
-    HashMapTopology, dfs,
+    HashMapTopology, TraversalEvent, dfs,
 };
 
 fn main() {
@@ -22,37 +22,65 @@ fn main() {
 
     for event in dfs::<_, std::collections::HashMap<_, _>>(&graph, a) {
         match event {
-            DfsEvent::DiscoverVertex(v) => {
-                println!("discover {} (v{})", graph.vertex(v).unwrap(), v.index())
+            DfsEvent::Core(TraversalEvent::Discover { vertex }) => {
+                println!(
+                    "discover {} (v{})",
+                    graph.vertex(vertex).unwrap(),
+                    vertex.index()
+                )
             }
-            DfsEvent::ExamineEdge(u, e, v) => println!(
+            DfsEvent::Core(TraversalEvent::Examine {
+                source,
+                edge,
+                target,
+            }) => println!(
                 "examine edge e{}: {} -> {}",
-                e.index(),
-                graph.vertex(u).unwrap(),
-                graph.vertex(v).unwrap()
+                edge.index(),
+                graph.vertex(source).unwrap(),
+                graph.vertex(target).unwrap()
             ),
-            DfsEvent::TreeEdge(u, _, v) => println!(
+            DfsEvent::TreeEdge {
+                source,
+                edge: _,
+                target,
+            } => println!(
                 "tree-edge: {} -> {}",
-                graph.vertex(u).unwrap(),
-                graph.vertex(v).unwrap()
+                graph.vertex(source).unwrap(),
+                graph.vertex(target).unwrap()
             ),
-            DfsEvent::BackEdge(u, _, v) => println!(
+            DfsEvent::BackEdge {
+                source,
+                edge: _,
+                target,
+            } => println!(
                 "back-edge: {} -> {}",
-                graph.vertex(u).unwrap(),
-                graph.vertex(v).unwrap()
+                graph.vertex(source).unwrap(),
+                graph.vertex(target).unwrap()
             ),
-            DfsEvent::ForwardEdge(u, _, v) => println!(
+            DfsEvent::ForwardEdge {
+                source,
+                edge: _,
+                target,
+            } => println!(
                 "forward-edge: {} -> {}",
-                graph.vertex(u).unwrap(),
-                graph.vertex(v).unwrap()
+                graph.vertex(source).unwrap(),
+                graph.vertex(target).unwrap()
             ),
-            DfsEvent::CrossEdge(u, _, v) => println!(
+            DfsEvent::CrossEdge {
+                source,
+                edge: _,
+                target,
+            } => println!(
                 "cross-edge: {} -> {}",
-                graph.vertex(u).unwrap(),
-                graph.vertex(v).unwrap()
+                graph.vertex(source).unwrap(),
+                graph.vertex(target).unwrap()
             ),
-            DfsEvent::FinishVertex(v) => {
-                println!("finish {} (v{})", graph.vertex(v).unwrap(), v.index())
+            DfsEvent::Core(TraversalEvent::Finish { vertex }) => {
+                println!(
+                    "finish {} (v{})",
+                    graph.vertex(vertex).unwrap(),
+                    vertex.index()
+                )
             }
         }
     }
