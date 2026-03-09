@@ -29,6 +29,27 @@ fn make_graph() -> (
     (graph, a)
 }
 
+fn make_cycle_graph() -> (
+    BasicGraph<HashMapStorage<&'static str, Cost>, HashMapTopology>,
+    VertexHandle,
+) {
+    let storage = HashMapStorage::<&str, Cost>::new();
+    let topology = HashMapTopology::new();
+    let mut graph = BasicGraph::new(storage, topology);
+
+    let a = graph.add_vertex("A");
+    let b = graph.add_vertex("B");
+    let c = graph.add_vertex("C");
+
+    graph.add_edge(Cost(1.0), a, b);
+    graph.add_edge(Cost(1.0), b, c);
+    graph.add_edge(Cost(1.0), b, b);
+    graph.add_edge(Cost(1.0), c, a);
+
+    (graph, a)
+}
+
+
 #[test]
 fn bfs_vertices_discovers_expected_set() {
     let (graph, start) = make_graph();
@@ -81,6 +102,26 @@ fn dfs_discovers_and_finishes_all_reachable_vertices() {
 
     assert_eq!(discover, 4);
     assert_eq!(finish, 4);
+}
+
+
+#[test]
+fn dfs_cycle_classifies_back_edges_for_ancestors() {
+    let (graph, start) = make_cycle_graph();
+
+    let events: Vec<_> = dfs::<_, HashMap<VertexHandle, _>>(&graph, start).collect();
+
+    let back_edge_count = events
+        .iter()
+        .filter(|event| matches!(event, DfsEvent::BackEdge { .. }))
+        .count();
+    let forward_edge_count = events
+        .iter()
+        .filter(|event| matches!(event, DfsEvent::ForwardEdge { .. }))
+        .count();
+
+    assert!(back_edge_count >= 1);
+    assert_eq!(forward_edge_count, 0);
 }
 
 #[test]
