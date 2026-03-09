@@ -60,7 +60,7 @@ where
         let mut stack = Vec::new();
         let mut pending = VecDeque::new();
 
-        colors.set_property(start, Color::Black);
+        colors.set_property(start, Color::Gray);
         stack.push(start);
         pending.push_back(Event::Core(TraversalEvent::Discover { vertex: start }));
 
